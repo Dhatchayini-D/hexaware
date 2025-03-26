@@ -107,8 +107,7 @@ where productname in ('laptop', 'smartphone', 'headphones', 'mouse', 'keyboard',
 
 
 --- Compute the average order value per customer ---
-select c.firstname, 
-       avg(od.quantity * o.totalamount) as average_order_value
+select c.firstname,  avg(od.quantity * o.totalamount) as average_order_value
 from customers c
 join orders o on c.customerid = o.customerid
 join orderdetails od on o.orderid = od.orderid
@@ -116,10 +115,7 @@ group by c.firstname;
 select* from orders;
 
 -- Find the order with the highest revenue --
-select top 1 
-       o.orderid, 
-       c.firstname, 
-       sum(od.quantity * o.totalamount) as total_revenue
+select top 1  o.orderid,  c.firstname, sum(od.quantity * o.totalamount) as total_revenue
 from orders o
 join customers c on o.customerid = c.customerid
 join orderdetails od on o.orderid = od.orderid
@@ -201,7 +197,7 @@ having count(o.orderid) = ( select max(order_count) from (  select count(o1.orde
 
 
 
--- 7. Most popular product category by total quantity ordered
+--  Most popular product category by total quantity ordered
 
 select top 1 p.productid, p.productname, sum(od.quantity) as total_quantity
 from orderdetails od
@@ -215,7 +211,7 @@ order by total_quantity desc;
 
 
 
--- 8. Customer who spent the most on electronic gadgets
+--. Customer who spent the most on electronic gadgets
 select c.firstname, c.lastname, sum(od.quantity * p.price) as total_spent
 from orderdetails od
 join orders o on od.orderid = o.orderid
@@ -231,7 +227,7 @@ join orders o1 on od1.orderid = o1.orderid group by o1.customerid order by sum(o
 
 
 
--- 9. Average order value for all customers
+--  Average order value for all customers
 
 select c.firstname, c.lastname, avg(o.totalamount) as avg_order_value
 from customers c
@@ -239,7 +235,7 @@ join orders o on c.customerid = o.customerid
 group by c.customerid, c.firstname, c.lastname;
 
 
--- 10. Total number of orders placed by each customer
+--  Total number of orders placed by each customer
 
 
 select c.firstname, c.lastname, count(o.orderid) as order_count
