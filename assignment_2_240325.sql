@@ -70,112 +70,55 @@ select * from orderdetails;
 select * from inventory;
 
 
-----Retrieve the names and emails of all customers
+-- retrieve the names and emails of all customers
+select firstname, lastname, email from customers;
 
-SELECT firstname, lastname, email
-FROM customers;
+-- list all orders with their order dates and corresponding customer names
+select orderid, orderdate, (select firstname from customers
+    where customers.customerid = orders.customerid) as firstname, (select lastname from customers 
+    where customers.customerid = orders.customerid) as lastname from orders;
 
----List all orders with their order dates and corresponding customer names
-SELECT 
-    orderid,
-    orderdate,
-    (SELECT firstname FROM customers WHERE customers.customerid = orders.customerid) AS firstname,
-    (SELECT lastname FROM customers WHERE customers.customerid = orders.customerid) AS lastname
-FROM orders;
+-- insert a new customer record into the "customers" table (example values)
+insert into customers (customerid, firstname, lastname, email, phone, address) 
+    values (11, 'ava', 'clark', 'ava.clark@email.com', '555-1011', '123 river st, brooktown');
+select * from customers;
 
------Insert a new customer record into the "Customers" table (example values)
+-- update the prices of all electronic gadgets in the "products" table by increasing them by 10%
+select productid, productname, price as old_price, price * 1.10 as simulated_new_price
+    from products where productname in ('laptop', 'smartphone', 'tablet', 'smartwatch', 'headphones', 'charger');
 
-INSERT INTO customers (customerid, firstname, lastname, email, phone, address)
-VALUES (11, 'Ava', 'Clark', 'ava.clark@email.com', '555-1011', '123 River St,Brooktown');
-select* from customers;
+-- delete a specific order and its associated order details (user provides @orderid)
+declare @orderid int = 3; delete from orderdetails where orderid = @orderid; 
+delete from orders where orderid = @orderid;
 
------Update the prices of all electronic gadgets in the "Products" table by increasing them by 10%
+-- insert a new order into the orders table
+insert into orders (orderid, customerid, orderdate, totalamount) values (11, 5, '2025-03-26', 499.99);
 
-SELECT productid,productname,
-    price AS old_price,
-    price * 1.10 AS simulated_new_price
-FROM products
-WHERE productname IN ('Laptop', 'Smartphone', 'Tablet', 'Smartwatch', 'Headphones', 'Charger');
+-- update the contact information (email and address) of a specific customer in the customers table
+declare @customerid int = 3; declare @newemail varchar(50) = 'updated.email@email.com'; 
+declare @newaddress varchar(200) = 'updated address, new city'; 
+update customers set email = @newemail, address = @newaddress where customerid = @customerid;
 
+-- update the total cost of each order in the orders table based on the prices and quantities in the orderdetails table
+select o.orderid, (select sum(od.quantity * p.price) 
+    from orderdetails od, products p where od.productid = p.productid and od.orderid = o.orderid) as recalculated_total from orders o;
 
+-- delete all orders and their associated order details for a specific customer
+declare @customer_id int = 3; delete from orderdetails
+    where orderid in (select orderid from orders where customerid = @customer_id); delete from orders where customerid = @customer_id; select * from customers;
 
-------Delete a specific order and its associated order details (user provides @OrderID)
-DECLARE @OrderID INT = 3; 
-DELETE FROM orderdetails
-WHERE orderid = @OrderID;
-DELETE FROM orders
-WHERE orderid = @OrderID;
+-- insert a new electronic gadget product into the products table
+insert into products (productid, productname, description, price) 
+    values (11, 'wireless earbuds', 'bluetooth-enabled wireless earbuds with noise cancellation', 129.99);
 
------Insert a new order into the Orders table
-insert  INTO Orders (orderid, customerid, orderdate, totalamount)
-VALUES (11, 5, '2025-03-26', 499.99);
+-- add a state column to the orders table and update the order status
+alter table orders add state varchar(20); declare @order_id int = 5;
+declare @newstatus varchar(20) = 'shipped'; update orders set state = @newstatus where orderid = @order_id;
 
+-- add an order_count column to the customers table and update it with the number of orders for each customer
+alter table customers add order_count int default 0;
+update customers set order_count = (select count(*) from orders o where o.customerid = customerid);
 
-----update the contact information (email and address) of a specific customer in the Customers table
-DECLARE @CustomerID INT = 3; 
-DECLARE @NewEmail VARCHAR(50) = 'updated.email@email.com'; 
-DECLARE @NewAddress VARCHAR(200) = 'Updated Address, New City'; 
-
-UPDATE Customers
-SET email = @NewEmail,
-    address = @NewAddress
-WHERE customerid = @CustomerID;
-
-
-
----(8)update the total cost of each order in the Orders table based on the prices and quantities in the OrderDetails table, you can use the following query:
-
-
-
-SELECT o.orderid, 
-       (SELECT SUM(od.quantity * p.price) 
-        FROM orderdetails od, products p WHERE od.productid = p.productid AND od.orderid = o.orderid) AS recalculated_total 
-FROM orders o;
-
-
------(9)Delete all orders and their associated order details for a specific customer
-
- 
- DECLARE @Customer_ID INT = 3;  
-DELETE FROM orderdetails
-WHERE orderid IN (SELECT orderid FROM orders WHERE customerid = @Customer_ID);
-DELETE FROM orders
-WHERE customerid = @Customer_ID;
-select* from customers;
-
-
-
-
-
-
---(10)Insert a new electronic gadget product into the Products table
-
-INSERT INTO Products (productid, productname, description, price)
-VALUES (11, 'Wireless Earbuds', 'Bluetooth-enabled wireless earbuds with noise cancellation', 129.99);
-
-
-
---(11)
-
-ALTER TABLE Orders
-ADD state VARCHAR(20);
-DECLARE @Order_ID INT = 5; 
-DECLARE @NewStatus VARCHAR(20) = 'Shipped';  
-UPDATE Orders
-SET state = @NewStatus
-WHERE orderid = @OrderID;
-
-
-
------(12)
-ALTER TABLE Customers
-ADD order_count INT DEFAULT 0;
-UPDATE Customers 
-SET order_count = (
-    SELECT COUNT(*)
-    FROM Orders o
-    WHERE o.customerid = customerid
-);
 
 
 
