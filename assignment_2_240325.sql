@@ -74,9 +74,10 @@ select * from inventory;
 select firstname, lastname, email from customers;
 
 -- list all orders with their order dates and corresponding customer names
-select orderid, orderdate, (select firstname from customers
-    where customers.customerid = orders.customerid) as firstname, (select lastname from customers 
-    where customers.customerid = orders.customerid) as lastname from orders;
+select orders.orderid, orders.orderdate, customers.firstname, customers.lastname
+from orders
+join customers on orders.customerid = customers.customerid;
+
 
 -- insert a new customer record into the "customers" table (example values)
 insert into customers (customerid, firstname, lastname, email, phone, address) 
